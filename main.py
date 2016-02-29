@@ -7,56 +7,78 @@ class Selector:
 		self.username = user
 		self.password = pwd
 
+	def connectServer(self, url, response, headers):
+		try:
+			res = response.get(url, headers=headers)
+		except:
+			print("Cant connect to the target server.")
+			raise ConnectionError
+		if re.findall("游客登录", res.text) != []:
+			print("="*6 + "Invalid captcha or information." + "="*6)
+			raise ValueError
+		elif re.findall("404.png", res.text) != []:
+			print("="*6 + "Server error." + "="*6)
+			raise ConnectionError
+		else:
+			return {"res": res, "session": response}
+
+	def connectServerPost(self, url, response, headers, data):
+		try:
+			res = response.post(url, headers=headers, data=data)
+		except:
+			print("Cant connect to the post server.")
+			raise ConnectionError
+		if re.findall("游客登录", res.text) != []:
+			print("="*6 + "Invalid captcha or information." + "="*6)
+			raise ValueError
+		elif re.findall("404.png", res.text) != []:
+			print("="*6 + "Post server error." + "="*6)
+			raise ConnectionError
+		else:
+			return {"res": res, "session": response}
+
 	def getCaptha(self):
 		url = "http://210.42.121.241/servlet/GenImg"
 		response = requests.session()
-		res = response.get(url)
-		f = open("0.jpg", "wb")
-		f.write(res.content)
-		f.close()
-		self.cookie = re.findall('kie (.*) for', str(res.cookies))[0]
+		conn = self.connectServer(url, response=response, headers={})
+		res = conn["res"]
+		response = conn["session"]
+		try:
+			f = open("0.jpg", "wb")
+			f.write(res.content)
+			f.close()
+		except:
+			print("Cant open jpg file.")
+			raise FileExistsError
+		cookie = re.findall('kie (.*) for', str(res.cookies))[0]
 		cap = input("Plz enter the strings in the pic: ")
-		return {"cap": cap, "response": response}
+		return {"cap": cap, "response": response, "cookie": cookie}
 
 	def checkUser(self):
 		url = "http://210.42.121.241/servlet/Login"
 		keys = self.getCaptha()
 		captcha = keys["cap"]
 		response = keys["response"]
+		cookie = keys["cookie"]
 		headers = {
-			"Cookie": self.cookie,
-			"Host": "210.42.121.241",
+			"Cookie": cookie,
 			"User-Agent": "Mozilla/5.0 (Windows NT 10.0; WOW64; rv:44.0) Gecko/20100101 Firefox/44.0",
-			"Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-			"Accept-Language": "zh-CN,zh;q=0.8,en-US;q=0.5,en;q=0.3",
-			"Accept-Encoding": "gzip, deflate",
-			"Referer": "http://210.42.121.241/",
-			"Connection": "keep-alive"
 		}
 		post_data = {
 			"id": self.username,
 			"pwd": self.password,
 			"xdvfb": captcha
 		}
-		res = response.post(url, data=post_data, headers=headers)
-		res = response.get("http://210.42.121.241/stu/stu_index.jsp", headers=headers)
-		if re.findall("验证码错误", str(res.text)) != []:
-			print("Failed to login, wrong captcha.")
-			raise ValueError
-		elif re.findall("用户名/密码错误", str(res.text)) != []:
-			print("Failed to login, wrong user name or password.")
-			raise ValueError
-		elif re.findall("游客登录", str(res.text)) != []:
-			print("Failed to login.")
-			raise ValueError
+		response = self.connectServerPost(url, response=response, headers=headers, data=post_data)["session"]
+		conn = self.connectServer("http://210.42.121.241/stu/stu_index.jsp", response=response, headers=headers)
+		response = conn["session"]
 		print("=="*30)
 		print("Login successfully")
 		print("=="*30)
-		return response
+		return {"session": response, "cookie": cookie}
 
 	def getCourse(self):
 		cour = list()
-		num = 0
 		for i in range(6):
 			print("Enter 'finish' to finish.")
 			print("Selected %s courses." % str(i))
@@ -64,40 +86,25 @@ class Selector:
 			if course == "finish":
 				break
 			cour.append(course)
-			num = i + 1
-		return [cour, num]
+		return cour
 
 	def main(self):
 		url = "http://210.42.121.241/servlet/ProcessApply?applyType=pub&studentNum=" + self.username
-		response = self.checkUser()
-		ls = self.getCourse()
-		course = ls[0]
-		num = ls[1]
+		infos = self.checkUser()
+		course = self.getCourse()
+		response = infos["session"]
+		cookie = infos["cookie"]
 		print(" ")
 		print("Posting your courses...")
-		if num == 1:
-			post_data = {"apply": course[0]}
-		elif num == 2:
-			post_data = [("apply", course[0]), ("apply", course[1])]
-		elif num == 3:
-			post_data = [("aplly", course[0]), ("apply", course[1]), ("apply", course[2])]
-		elif num == 4:
-			post_data = [("aplly", course[0]), ("apply", course[1]), ("apply", course[2]), ("apply", course[3])]
-		elif num == 5:
-			post_data = [("aplly", course[0]), ("apply", course[1]), ("apply", course[2]), ("apply", course[3]), ("apply", course[4])]
-		else:
-			post_data = [("aplly", course[0]), ("apply", course[1]), ("apply", course[2]), ("apply", course[3]), ("apply", course[4]), ("qpply", course[5])]
-		headers={
-			"Host": "210.42.121.241",
+		post_data = []
+		for cou in course:
+			post_data.append(("apply", cou))
+		headers = {
 			"User-Agent": "Mozilla/5.0 (Windows NT 10.0; WOW64; rv:44.0) Gecko/20100101 Firefox/44.0",
-			"Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-			"Accept-Language": "zh-CN,zh;q=0.8,en-US;q=0.5,en;q=0.3",
-			"Accept-Encoding": "gzip, deflate",
-			"Referer": "http://210.42.121.241/stu/choose_Publsn_Apply.jsp",
-			"Connection": "keep-alive",
-			"Cookie": self.cookie
+			"Cookie": cookie
 		}
-		res = response.post(url, data=post_data, headers=headers)
+		conn = self.connectServerPost(url, response=response, headers=headers, data=post_data)
+		res = conn["res"]
 		info = re.findall('恭喜您，申请单提交成功！', res.text)
 		if info != []:
 			print("=="*30)
@@ -109,5 +116,6 @@ class Selector:
 			print("Error")
 
 
-s = Selector("2013301000021", "zjk1995")
-s.main()
+if __name__ == "__main__":
+	s = Selector("2013301000021", "zjk1995")
+	s.main()
