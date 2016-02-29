@@ -27,6 +27,7 @@ Only used for test.
 
 ## 3. Todo list
 
+- ~~Error controler~~
 - Make codes cleaner
 - Need the course's name rather than id
 - Autotry after 404
