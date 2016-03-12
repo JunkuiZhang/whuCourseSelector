@@ -1,6 +1,7 @@
 import requests
 import re
 
+
 class Selector:
 
 	def __init__(self, user, pwd):
