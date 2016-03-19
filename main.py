@@ -1,5 +1,10 @@
 import requests
 import re
+import smtplib
+from email.mime.text import MIMEText
+from email.utils import parseaddr, formataddr
+from email.header import Header
+import poplib
 
 
 class Selector:
@@ -136,6 +141,37 @@ class Selector:
 				print(n)
 		else:
 			print("Error")
+
+
+class EmailUser:
+
+	def __init__(self):
+		self.user = "junkuizhang@126.com"
+		self.pwd = "ZJKzhangjunkui01"
+		self.smtp_server = "smtp.126.com"
+		self.pop_server = "pop.126.com"
+
+	def send_information(self, info, to_addr):
+
+		def get_format_addr(data):
+			name, addr = parseaddr(data)
+			return formataddr((Header(name, "utf-8").encode(), addr))
+
+		message = MIMEText(str(info), "plain", "utf-8")
+		message["From"] = get_format_addr("Junkui Zhang <%s>" % self.user)
+		message["To"] = get_format_addr("User <%s>" % to_addr)
+		message["Subject"] = Header("这是由软件自动发出的邮件！", "utf-8").encode()
+
+		server = smtplib.SMTP(self.smtp_server, 25)
+		server.login(self.user, self.pwd)
+		server.sendmail(self.user, [to_addr], message.as_string())
+		server.quit()
+
+	def read_replies(self):
+		server = poplib.POP3(self.pop_server)
+		server.user(self.user)
+		server.pass_(self.pwd)
+		# this is a placeholder
 
 
 if __name__ == "__main__":
