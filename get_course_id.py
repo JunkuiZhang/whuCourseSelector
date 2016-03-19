@@ -53,7 +53,7 @@ class Course:
 		captcha = input("Enter the strings: ")
 		cookie = res.cookies
 		cookie = re.findall('kie (.*) for', str(cookie))[0]
-		return {"captcha":captcha, "session": conn["session"], "cookie": cookie}
+		return {"captcha": captcha, "session": conn["session"], "cookie": cookie}
 
 	def checkUser(self, response, cookie, captcha):
 		headers = {

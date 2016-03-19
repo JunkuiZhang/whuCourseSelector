@@ -30,7 +30,7 @@ Only used for test.
 - ~~Error controler~~
 - Make codes cleaner
 - Need the course's name rather than id
-- Autotry after 404
+- ~~Autotry after 404~~
 - Email the user when cookie is outdate
 - Email the user when finish selection
 - Generate .exe files

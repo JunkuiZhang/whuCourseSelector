@@ -29,9 +29,11 @@ class Selector:
 		except:
 			print("Cant connect to the post server.")
 			raise ConnectionError
-		if re.findall("游客登录", res.text) != []:
-			print("="*6 + "Invalid captcha or information." + "="*6)
+		if re.findall("用户名/密码错误", res.text) != []:
+			print("="*6 + "Invalid user name or password." + "="*6)
 			raise ValueError
+		elif re.findall('验证码错误', res.text) != []:
+			print("="*6 + "Invalid captcha input." + "="*6)
 		elif re.findall("404.png", res.text) != []:
 			print("="*6 + "Post server error." + "="*6)
 			raise ConnectionError
@@ -44,6 +46,7 @@ class Selector:
 		conn = self.connectServer(url, response=response, headers={})
 		res = conn["res"]
 		response = conn["session"]
+		print("Trying to connect to the captcha server...")
 		try:
 			f = open("0.jpg", "wb")
 			f.write(res.content)
@@ -57,7 +60,14 @@ class Selector:
 
 	def checkUser(self):
 		url = "http://210.42.121.241/servlet/Login"
-		keys = self.getCaptha()
+		while True:
+			try:
+				keys = self.getCaptha()
+				break
+			except:
+				print("Failed to connect to captcha server. Try again in 1 second.")
+				continue
+		print("Trying to login...")
 		captcha = keys["cap"]
 		response = keys["response"]
 		cookie = keys["cookie"]
@@ -70,9 +80,13 @@ class Selector:
 			"pwd": self.password,
 			"xdvfb": captcha
 		}
-		response = self.connectServerPost(url, response=response, headers=headers, data=post_data)["session"]
-		conn = self.connectServer("http://210.42.121.241/stu/stu_index.jsp", response=response, headers=headers)
-		response = conn["session"]
+		while True:
+			try:
+				response = self.connectServerPost(url, response=response, headers=headers, data=post_data)["session"]
+				break
+			except:
+				print("Failed to login. Try again in 1 second.")
+				continue
 		print("=="*30)
 		print("Login successfully")
 		print("=="*30)
@@ -91,8 +105,8 @@ class Selector:
 
 	def main(self):
 		url = "http://210.42.121.241/servlet/ProcessApply?applyType=pub&studentNum=" + self.username
-		infos = self.checkUser()
 		course = self.getCourse()
+		infos = self.checkUser()
 		response = infos["session"]
 		cookie = infos["cookie"]
 		print(" ")
@@ -104,7 +118,14 @@ class Selector:
 			"User-Agent": "Mozilla/5.0 (Windows NT 10.0; WOW64; rv:44.0) Gecko/20100101 Firefox/44.0",
 			"Cookie": cookie
 		}
-		conn = self.connectServerPost(url, response=response, headers=headers, data=post_data)
+		print("Trying to post your courses...")
+		while True:
+			try:
+				conn = self.connectServerPost(url, response=response, headers=headers, data=post_data)
+				break
+			except:
+				print("Failed to post your course. Try again in 1 second.")
+				continue
 		res = conn["res"]
 		info = re.findall('恭喜您，申请单提交成功！', res.text)
 		if info != []:
