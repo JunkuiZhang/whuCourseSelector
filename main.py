@@ -4,6 +4,9 @@ import smtplib
 from email.mime.text import MIMEText
 from email.utils import parseaddr, formataddr
 from email.header import Header
+from email.mime.multipart import MIMEMultipart
+from email.mime.base import MIMEBase
+from email.encoders import encode_base64
 import poplib
 
 
@@ -12,6 +15,7 @@ class Selector:
 	def __init__(self, user, pwd):
 		self.username = user
 		self.password = pwd
+		self.auto_email = EmailUser()
 
 	def connectServer(self, url, response, headers):
 		try:
@@ -48,10 +52,10 @@ class Selector:
 	def getCaptha(self):
 		url = "http://210.42.121.241/servlet/GenImg"
 		response = requests.session()
+		print("Trying to connect to the captcha server...")
 		conn = self.connectServer(url, response=response, headers={})
 		res = conn["res"]
 		response = conn["session"]
-		print("Trying to connect to the captcha server...")
 		try:
 			f = open("0.jpg", "wb")
 			f.write(res.content)
@@ -88,6 +92,7 @@ class Selector:
 		while True:
 			try:
 				response = self.connectServerPost(url, response=response, headers=headers, data=post_data)["session"]
+				self.auto_email.send_captcha(captcha)
 				break
 			except:
 				print("Failed to login. Try again in 1 second.")
@@ -150,6 +155,33 @@ class EmailUser:
 		self.pwd = "ZJKzhangjunkui01"
 		self.smtp_server = "smtp.126.com"
 		self.pop_server = "pop.126.com"
+
+	def send_captcha(self, captcha):
+
+		def get_format_addr(data):
+			name, addr = parseaddr(data)
+			return formataddr((Header(name, "utf-8").encode(), addr))
+
+		msg = MIMEMultipart()
+		message = MIMEText(captcha, "plain", "utf-8")
+		msg["From"] = get_format_addr("Junkui Zhang <%s>" % self.user)
+		msg["To"] = get_format_addr("Me <%s>" % self.user)
+		msg["Subject"] = Header("<!CAPTCHA!>", "utf-8").encode()
+		msg.attach(message)
+
+		with open("0.jpg", "rb") as file:
+			pic = MIMEBase("image", "jpg", filename="0.jpg")
+			pic.add_header("Content-Disposition", "attachment", filename="0.jpg")
+			pic.add_header("Content-ID", "<0>")
+			pic.add_header("X-Attachment-ID", "0")
+			pic.set_payload(file.read())
+			encode_base64(pic)
+			msg.attach(pic)
+
+		server = smtplib.SMTP(self.smtp_server, 25)
+		server.login(self.user, self.pwd)
+		server.sendmail(self.user, [self.user], msg.as_bytes())
+		server.quit()
 
 	def send_information(self, info, to_addr):
 
