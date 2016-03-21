@@ -263,12 +263,12 @@ class MyWindow(QtGui.QMainWindow, Ui_MainWindow):
 
 	def get_course(self):
 		courses = list()
-		courses.append(self.course_1.toPlainText())
-		courses.append(self.course_2.toPlainText())
-		courses.append(self.course_3.toPlainText())
-		courses.append(self.course_4.toPlainText())
-		courses.append(self.course_5.toPlainText())
-		courses.append(self.course_6.toPlainText())
+		courses.append(self.course_1.text())
+		courses.append(self.course_2.text())
+		courses.append(self.course_3.text())
+		courses.append(self.course_4.text())
+		courses.append(self.course_5.text())
+		courses.append(self.course_6.text())
 		post_data = []
 		for cou in courses:
 			post_data.append(("apply", cou))
@@ -285,11 +285,11 @@ class MyWindow(QtGui.QMainWindow, Ui_MainWindow):
 
 		login_url = "http://210.42.121.241/servlet/Login"
 		self.print_window.append("正在登录...")
-		captcha = self.captcha_2.toPlainText()
+		captcha = self.captcha_2.text()
 		response = self.response
 		cookie = self.cookie
-		username = self.user_name.toPlainText()
-		password = self.password.toPlainText()
+		username = self.user_name.text()
+		password = self.password.text()
 		headers = {
 			"Cookie": cookie,
 		}

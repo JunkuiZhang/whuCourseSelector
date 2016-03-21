@@ -20,7 +20,7 @@
       <x>10</x>
       <y>3</y>
       <width>711</width>
-      <height>501</height>
+      <height>514</height>
      </rect>
     </property>
     <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -72,8 +72,8 @@
              </property>
              <property name="font">
               <font>
-               <family>Adobe Arabic</family>
-               <pointsize>18</pointsize>
+               <family>Arial</family>
+               <pointsize>14</pointsize>
               </font>
              </property>
             </widget>
@@ -235,10 +235,16 @@
            </item>
            <item>
             <widget class="QLineEdit" name="captcha_2">
+             <property name="minimumSize">
+              <size>
+               <width>200</width>
+               <height>40</height>
+              </size>
+             </property>
              <property name="font">
               <font>
-               <family>Adobe Arabic</family>
-               <pointsize>18</pointsize>
+               <family>Arial</family>
+               <pointsize>14</pointsize>
               </font>
              </property>
             </widget>
@@ -381,8 +387,8 @@
              </property>
              <property name="font">
               <font>
-               <family>Adobe Arabic</family>
-               <pointsize>18</pointsize>
+               <family>Arial</family>
+               <pointsize>14</pointsize>
               </font>
              </property>
             </widget>
@@ -410,8 +416,8 @@
              </property>
              <property name="font">
               <font>
-               <family>Adobe Arabic</family>
-               <pointsize>18</pointsize>
+               <family>Arial</family>
+               <pointsize>14</pointsize>
               </font>
              </property>
             </widget>
@@ -439,8 +445,8 @@
              </property>
              <property name="font">
               <font>
-               <family>Adobe Arabic</family>
-               <pointsize>18</pointsize>
+               <family>Arial</family>
+               <pointsize>14</pointsize>
               </font>
              </property>
             </widget>
@@ -471,6 +477,12 @@
                <width>0</width>
                <height>0</height>
               </size>
+             </property>
+             <property name="font">
+              <font>
+               <family>Arial</family>
+               <pointsize>14</pointsize>
+              </font>
              </property>
             </widget>
            </item>
@@ -503,8 +515,8 @@
              </property>
              <property name="font">
               <font>
-               <family>Adobe Arabic</family>
-               <pointsize>18</pointsize>
+               <family>Arial</family>
+               <pointsize>14</pointsize>
               </font>
              </property>
             </widget>
@@ -532,8 +544,8 @@
              </property>
              <property name="font">
               <font>
-               <family>Adobe Arabic</family>
-               <pointsize>18</pointsize>
+               <family>Arial</family>
+               <pointsize>14</pointsize>
               </font>
              </property>
             </widget>
@@ -560,8 +572,8 @@
        </property>
        <property name="font">
         <font>
-         <family>Adobe Arabic</family>
-         <pointsize>14</pointsize>
+         <family>黑体</family>
+         <pointsize>11</pointsize>
         </font>
        </property>
        <property name="focusPolicy">
