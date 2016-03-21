@@ -72,43 +72,150 @@ class EmailUser:
 		# this is a placeholder
 
 
-class CheckConnect(QtCore.QThread):
+class CheckCaptchaConnect(QtCore.QThread):
 	sin1 = QtCore.pyqtSignal(str)
+	sin2 = QtCore.pyqtSignal(object)
 
-	def __init__(self, response, url, header, parent=None):
-		super(CheckConnect, self).__init__(parent)
+	def __init__(self, response, url):
+		QtCore.QThread.__init__(self)
 		self.url = url
 		self.response = response
-		self.header = header
 		self.is_done = 0
-		self.strings = ""
-		self.res = ""
 
 	def run(self):
 		while self.is_done == 0:
+			self.sin1.emit("尝试连接至验证码服务器...")
+			time.sleep(1)
 			try:
-				conn = self.response.get(self.url, headers=self.header)
+				conn = self.response.get(self.url)
 				if re.findall('404.png', conn.text) != []:
 					self.sin1.emit("连接失败，1秒后重试")
-				self.res = conn
+					continue
 				self.is_done = 1
-				self.sin1.emit("连接成功！请输入验证码！")
+				self.sin1.emit("连接成功！")
+				self.sin2.emit(conn)
 			except:
-				self.sin1.emit("=========无法连接至验证码服务器，1秒后重试=======")
+				self.sin1.emit("=================无法连接至验证码服务器，1秒后重试=================")
+				time.sleep(1)
+		if self.is_done == 1:
+			self.quit()
 
 
-class ConnectThread(QtCore.QThread):
-	sin1 = QtCore.pyqtSignal()
+class DownloadCaptcha(QtCore.QThread):
+	sin1 = QtCore.pyqtSignal(str)
+	sin2 = QtCore.pyqtSignal(object)
 
-	def __init__(self, thread):
-		super(ConnectThread, self).__init__()
-		self.thread = thread
+	def __init__(self, conn):
+		QtCore.QThread.__init__(self)
+		self.is_done = 0
+		self.conn = conn
+		self.cookie = None
+		self.update_captcha = None
 
 	def run(self):
-		while self.thread.is_done == 0:
-			self.thread.quit()
-			self.thread.start()
-		self.sin1.emit()
+		while self.is_done == 0:
+			time.sleep(1)
+			self.sin1.emit("==============================================================")
+			self.sin1.emit("                      尝试下载验证码...")
+			try:
+				f = open("0.jpg", "wb")
+				f.write(self.conn.content)
+				f.close()
+				self.cookie = re.findall('kie (.*) for', str(self.conn.cookies))[0]
+				self.is_done = 1
+				self.sin1.emit("==============================================================")
+				self.sin1.emit("             下载验证码成功！请输入验证码")
+				self.sin2.emit(self.cookie)
+				break
+			except:
+				time.sleep(1)
+				self.sin1.emit("无法打开文件")
+				continue
+		if self.is_done == 1:
+			self.quit()
+
+
+class ConnectLoginServer(QtCore.QThread):
+	sin1 = QtCore.pyqtSignal(str)
+	sin2 = QtCore.pyqtSignal(int)
+
+	def __init__(self, response, url, headers, post_data):
+		QtCore.QThread.__init__(self)
+		self.response = response
+		self.url = url
+		self.headers = headers
+		self.post_data = post_data
+		self.is_done = 0
+
+	def run(self):
+		while self.is_done == 0:
+			time.sleep(1)
+			try:
+				response = self.response.post(self.url, headers=self.headers, data=self.post_data)
+				if re.findall("用户名/密码错误", response.text) != []:
+					self.sin1.emit("=======================用户名/密码错误==========================")
+					self.is_done = 2
+					time.sleep(1)
+					continue
+				elif re.findall('验证码错误', response.text) != []:
+					self.sin1.emit("==========================验证码错误============================")
+					self.is_done = 2
+					time.sleep(1)
+					continue
+				elif re.findall("404.png", response.text) != []:
+					self.sin1.emit("===========================登录超时=============================")
+					time.sleep(1)
+					continue
+				self.is_done = 1
+				time.sleep(1)
+				break
+			except:
+				print(self.headers)
+				print(self.res.text)
+				self.sin1.emit("登陆失败，1秒后重试")
+				time.sleep(1)
+				continue
+		if self.is_done == 1:
+			self.sin1.emit("==============================================================")
+			self.sin1.emit("                        登录成功")
+		elif self.is_done == 2:
+			self.sin1.emit("==============================================================")
+			self.sin1.emit("                        登录失败")
+		self.sin2.emit(self.is_done)
+		self.quit()
+
+
+class PostCourseThread(QtCore.QThread):
+	sin1 = QtCore.pyqtSignal(str)
+
+	def __init__(self, response, url, headers, post_data):
+		QtCore.QThread.__init__(self)
+		self.is_done = 0
+		self.response = response
+		self.url = url
+		self.headers = headers
+		self.post_data = post_data
+
+	def run(self):
+		while self.is_done == 0:
+			time.sleep(1)
+			try:
+				conn = self.response.post(self.url,headers=self.headers, data=self.post_data)
+				if re.findall('恭喜您，申请单提交成功！', conn.text) != []:
+					self.sin1.emit("=========================提交成功！============================")
+					time.sleep(1)
+					self.sin1.emit("==============================================================")
+					time.sleep(1)
+					self.sin1.emit("                           Done.")
+					self.is_done = 1
+					break
+				else:
+					self.sin1.emit("提交失败，1秒后重试")
+			except:
+				self.sin1.emit("提交失败")
+				continue
+		if self.is_done == 1:
+			self.quit()
 
 
 class MyWindow(QtGui.QMainWindow, Ui_MainWindow):
@@ -126,47 +233,33 @@ class MyWindow(QtGui.QMainWindow, Ui_MainWindow):
 		self.response = requests.session()
 		self.cookie = ""
 		self.auto_email = EmailUser()
+		self.connect_to_captcha_thread = None
+		self.download_captcha_thread = None
+		self.connect_to_login_thread = None
+		self.post_course_thread = None
 
 	def print_info(self, string):
 		self.print_window.append(string)
 
 	def get_captcha_(self):
 
-		def some_function():
-			conn = thread1.res
-			self.print_window.append("=="*20)
-			self.print_window.append("成功下载验证码！请输入验证码")
-			try:
-				f = open("0.jpg", "wb")
-				f.write(conn.content)
-				f.close()
+		def check_connect_to_captcha(ob):
+			if ob is not None:
+				self.download_captcha_thread = DownloadCaptcha(ob)
+				self.download_captcha_thread.sin1.connect(self.print_info)
+				self.download_captcha_thread.sin2.connect(check_download_captcha)
+				self.download_captcha_thread.start()
+
+		def check_download_captcha(ob):
+			if ob is not None:
+				self.cookie = ob
 				self.captcha.setPixmap(QtGui.QPixmap("0.jpg"))
-			except:
-				self.print_window.append("无法打开文件")
-				raise FileExistsError
-			self.cookie = re.findall('kie (.*) for', str(conn.cookies))[0]
 
 		url = "http://210.42.121.241/servlet/GenImg"
-		response = requests.session()
-		thread1 = CheckConnect(response, url, {})
-		thread1.sin1.connect(self.print_info)
-		thread2 = ConnectThread(thread1)
-		thread2.sin1.connect(some_function)
-		thread2.start()
-		thread2.wait()
-
-		# conn = thread1.res
-		# self.print_window.append("=="*20)
-		# self.print_window.append("成功下载验证码！请输入验证码")
-		# try:
-		# 	f = open("0.jpg", "wb")
-		# 	f.write(conn.content)
-		# 	f.close()
-		# 	self.captcha.setPixmap(QtGui.QPixmap("0.jpg"))
-		# except:
-		# 	self.print_window.append("无法打开文件")
-		# 	raise FileExistsError
-		# self.cookie = re.findall('kie (.*) for', str(conn.cookies))[0]
+		self.connect_to_captcha_thread = CheckCaptchaConnect(self.response, url)
+		self.connect_to_captcha_thread.sin1.connect(self.print_info)
+		self.connect_to_captcha_thread.sin2.connect(check_connect_to_captcha)
+		self.connect_to_captcha_thread.start()
 
 	def get_course(self):
 		courses = list()
@@ -176,10 +269,21 @@ class MyWindow(QtGui.QMainWindow, Ui_MainWindow):
 		courses.append(self.course_4.toPlainText())
 		courses.append(self.course_5.toPlainText())
 		courses.append(self.course_6.toPlainText())
-		return courses
+		post_data = []
+		for cou in courses:
+			post_data.append(("apply", cou))
+		return post_data
 
 	def run(self):
-		url = "http://210.42.121.241/servlet/Login"
+
+		def check_login_status(index):
+			if index == 1:
+				self.auto_email.send_captcha(login_data["xdvfb"])
+				self.post_course_thread = PostCourseThread(self.response, post_url, headers, post_data)
+				self.post_course_thread.sin1.connect(self.print_info)
+				self.post_course_thread.start()
+
+		login_url = "http://210.42.121.241/servlet/Login"
 		self.print_window.append("正在登录...")
 		captcha = self.captcha_2.toPlainText()
 		response = self.response
@@ -189,49 +293,17 @@ class MyWindow(QtGui.QMainWindow, Ui_MainWindow):
 		headers = {
 			"Cookie": cookie,
 		}
-		post_data = {
+		login_data = {
 			"id": username,
 			"pwd": password,
 			"xdvfb": captcha
 		}
-		while True:
-			try:
-				response = response.post(url, headers=headers, data=post_data)
-				if re.findall("用户名/密码错误", response.text) != []:
-					self.print_window.append("用户名/密码错误")
-					continue
-				elif re.findall('验证码错误', response.text) != []:
-					self.print_window.append("验证码错误")
-					continue
-				elif re.findall("404.png", response.text) != []:
-					self.print_window.append("登录服务器超时")
-					continue
-				self.auto_email.send_captcha(captcha)
-				break
-			except:
-				self.print_window.append("登陆失败，1秒后重试")
-				continue
-		self.print_window.append("=="*20)
-		self.print_window.append("登录成功")
-		courses = self.get_course()
-		self.print_window.append("正在提交课程...")
-		post_data = []
-		for cou in courses:
-			post_data.append(("apply", cou))
-		headers = {
-			"Cookie": cookie
-		}
-		while True:
-			try:
-				conn = self.response.post(url,headers=headers, data=post_data)
-				if re.findall('恭喜您，申请单提交成功！', conn.text) != []:
-					self.print_window.append("提交失败，自动重试...")
-					break
-				else:
-					raise ConnectionError
-			except:
-				self.print_window.append("提交失败")
-				continue
+		post_url = "http://210.42.121.241/servlet/ProcessApply?applyType=pub&studentNum=" + username
+		post_data = self.get_course()
+		self.connect_to_login_thread = ConnectLoginServer(response, login_url, headers, login_data)
+		self.connect_to_login_thread.sin1.connect(self.print_info)
+		self.connect_to_login_thread.sin2.connect(check_login_status)
+		self.connect_to_login_thread.start()
 
 
 if __name__ == "__main__":

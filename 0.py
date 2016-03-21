@@ -3,7 +3,7 @@ import re
 from ui_test import Ui_MainWindow
 from PyQt4 import QtGui, QtCore
 import sys
-import threading
+import time
 
 
 class ConnectThread(QtCore.QThread):
@@ -19,6 +19,7 @@ class ConnectThread(QtCore.QThread):
 	def run(self):
 		while True:
 			self.sin1.emit("Trying")
+			time.sleep(1)
 			try:
 				self.response.get(self.url)
 				self.sin1.emit("Hello")
@@ -40,6 +41,7 @@ class MyWindow(QtGui.QMainWindow, Ui_MainWindow):
 		self.setWindowIcon(icon)
 		self.get_captcha.clicked.connect(self.connect_to_captcha)
 		self.response = requests.session()
+		self.connect_to_captcha_thread = None
 
 	def update_text(self, string):
 		self.print_window.append(string)
@@ -50,13 +52,13 @@ class MyWindow(QtGui.QMainWindow, Ui_MainWindow):
 		# thread = ConnectToServer(self.response, url)
 		# thread.start()
 		# print(thread.strings)
-		thread = ConnectThread(self.response, url)
-		thread.sin1.connect(self.update_text)
-		thread.start()
+		self.connect_to_captcha_thread = ConnectThread(self.response, url)
+		self.connect_to_captcha_thread.sin1.connect(self.update_text)
+		self.connect_to_captcha_thread.start()
 		# th = LoopConnect(thread)
 		# th.sin1.connect(self.let_do_something)
 		# th.start()
-		thread.wait()
+		# thread.wait()
 		# th.wait()
 
 
