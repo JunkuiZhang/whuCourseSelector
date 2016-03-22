@@ -6,21 +6,33 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>733</width>
-    <height>546</height>
+    <width>732</width>
+    <height>561</height>
    </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>732</width>
+    <height>561</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>732</width>
+    <height>561</height>
+   </size>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QWidget" name="">
+   <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>3</y>
+      <y>0</y>
       <width>711</width>
-      <height>514</height>
+      <height>521</height>
      </rect>
     </property>
     <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -30,6 +42,19 @@
         <layout class="QVBoxLayout" name="verticalLayout">
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout">
+           <item>
+            <spacer name="horizontalSpacer_3">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>10</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
            <item>
             <widget class="QLabel" name="tips_user_name">
              <property name="font">
@@ -44,13 +69,13 @@
             </widget>
            </item>
            <item>
-            <spacer name="horizontalSpacer">
+            <spacer name="horizontalSpacer_4">
              <property name="orientation">
               <enum>Qt::Horizontal</enum>
              </property>
              <property name="sizeHint" stdset="0">
               <size>
-               <width>40</width>
+               <width>10</width>
                <height>20</height>
               </size>
              </property>
@@ -83,6 +108,19 @@
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout_3">
            <item>
+            <spacer name="horizontalSpacer">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>10</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item>
             <widget class="QLabel" name="tips_password">
              <property name="font">
               <font>
@@ -102,7 +140,7 @@
              </property>
              <property name="sizeHint" stdset="0">
               <size>
-               <width>40</width>
+               <width>10</width>
                <height>20</height>
               </size>
              </property>
@@ -141,44 +179,6 @@
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout_4">
            <item>
-            <widget class="QPushButton" name="get_captcha">
-             <property name="minimumSize">
-              <size>
-               <width>120</width>
-               <height>50</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>120</width>
-               <height>50</height>
-              </size>
-             </property>
-             <property name="font">
-              <font>
-               <family>黑体</family>
-               <pointsize>12</pointsize>
-              </font>
-             </property>
-             <property name="text">
-              <string>获取验证码</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <spacer name="horizontalSpacer_3">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>40</width>
-               <height>20</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-           <item>
             <widget class="QLabel" name="captcha">
              <property name="minimumSize">
               <size>
@@ -208,6 +208,19 @@
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout_5">
            <item>
+            <spacer name="horizontalSpacer_5">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>10</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item>
             <widget class="QLabel" name="tips_captcha_2">
              <property name="font">
               <font>
@@ -221,13 +234,13 @@
             </widget>
            </item>
            <item>
-            <spacer name="horizontalSpacer_4">
+            <spacer name="horizontalSpacer_6">
              <property name="orientation">
               <enum>Qt::Horizontal</enum>
              </property>
              <property name="sizeHint" stdset="0">
               <size>
-               <width>40</width>
+               <width>10</width>
                <height>20</height>
               </size>
              </property>
@@ -236,6 +249,12 @@
            <item>
             <widget class="QLineEdit" name="captcha_2">
              <property name="minimumSize">
+              <size>
+               <width>200</width>
+               <height>40</height>
+              </size>
+             </property>
+             <property name="maximumSize">
               <size>
                <width>200</width>
                <height>40</height>
@@ -278,7 +297,7 @@
             <enum>Qt::LeftToRight</enum>
            </property>
            <property name="text">
-            <string>登录</string>
+            <string>开始抢课</string>
            </property>
           </widget>
          </item>
@@ -583,24 +602,45 @@
      </item>
     </layout>
    </widget>
-   <zorder>layoutWidget</zorder>
-   <zorder>layoutWidget</zorder>
-   <zorder>print_window</zorder>
-   <zorder>line</zorder>
-   <zorder>user_name</zorder>
-   <zorder>tips_user_name</zorder>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>733</width>
-     <height>21</height>
+     <width>732</width>
+     <height>27</height>
     </rect>
    </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+   <widget class="QMenu" name="menuEdit">
+    <property name="font">
+     <font>
+      <pointsize>12</pointsize>
+     </font>
+    </property>
+    <property name="title">
+     <string>操作</string>
+    </property>
+    <addaction name="get_course_info"/>
+   </widget>
+   <addaction name="menuEdit"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
+  <action name="get_course_info">
+   <property name="text">
+    <string>准备课程信息</string>
+   </property>
+  </action>
+  <action name="get_course_num">
+   <property name="text">
+    <string>获取课程号</string>
+   </property>
+  </action>
  </widget>
  <resources/>
  <connections/>

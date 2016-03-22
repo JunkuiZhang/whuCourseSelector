@@ -12,6 +12,7 @@ from ui_test import Ui_MainWindow
 from PyQt4 import QtGui, QtCore
 import sys
 import time
+import webbrowser
 
 
 class EmailUser:
@@ -198,6 +199,7 @@ class PostCourseThread(QtCore.QThread):
 
 	def run(self):
 		while self.is_done == 0:
+			self.sin1.emit("             尝试提交你的课程...")
 			time.sleep(1)
 			try:
 				conn = self.response.post(self.url,headers=self.headers, data=self.post_data)
@@ -218,6 +220,21 @@ class PostCourseThread(QtCore.QThread):
 			self.quit()
 
 
+class GetCourseInfo(QtCore.QThread):
+	sin1 = QtCore.pyqtSignal(str)
+
+	def __init__(self):
+		QtCore.QThread.__init__(self)
+
+	def run(self):
+		try:
+			webbrowser.open("http://junkuizhang.github.io")
+		except:
+			self.sin1.emit("不能打开网页！！")
+			self.sin1.emit("请手动打开网页！")
+		self.quit()
+
+
 class MyWindow(QtGui.QMainWindow, Ui_MainWindow):
 
 	def __init__(self):
@@ -229,14 +246,16 @@ class MyWindow(QtGui.QMainWindow, Ui_MainWindow):
 		icon.addPixmap(QtGui.QPixmap("./source/logo.svg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
 		self.setWindowIcon(icon)
 		self.login.clicked.connect(self.run)
-		self.get_captcha.clicked.connect(self.get_captcha_)
+		self.get_course_info.triggered.connect(self.get_course_info_func)
 		self.response = requests.session()
 		self.cookie = ""
 		self.auto_email = EmailUser()
 		self.connect_to_captcha_thread = None
 		self.download_captcha_thread = None
+		self.get_course_info_thread = None
 		self.connect_to_login_thread = None
 		self.post_course_thread = None
+		self.get_captcha_()
 
 	def print_info(self, string):
 		self.print_window.append(string)
@@ -260,6 +279,11 @@ class MyWindow(QtGui.QMainWindow, Ui_MainWindow):
 		self.connect_to_captcha_thread.sin1.connect(self.print_info)
 		self.connect_to_captcha_thread.sin2.connect(check_connect_to_captcha)
 		self.connect_to_captcha_thread.start()
+
+	def get_course_info_func(self):
+		self.get_course_info_thread = GetCourseInfo()
+		self.get_course_info_thread.sin1.connect(self.print_info)
+		self.get_course_info_thread.start()
 
 	def get_course(self):
 		courses = list()
