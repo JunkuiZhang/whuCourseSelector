@@ -105,6 +105,7 @@ class CheckCaptchaConnect(QtCore.QThread):
 class DownloadCaptcha(QtCore.QThread):
 	sin1 = QtCore.pyqtSignal(str)
 	sin2 = QtCore.pyqtSignal(object)
+	sin3 = QtCore.pyqtSignal(int)
 
 	def __init__(self, conn):
 		QtCore.QThread.__init__(self)
@@ -127,6 +128,7 @@ class DownloadCaptcha(QtCore.QThread):
 				self.sin1.emit("==============================================================")
 				self.sin1.emit("             下载验证码成功！请输入验证码")
 				self.sin2.emit(self.cookie)
+				self.sin3.emit(self.is_done)
 				break
 			except:
 				time.sleep(1)
@@ -248,6 +250,7 @@ class MyWindow(QtGui.QMainWindow, Ui_MainWindow):
 		self.login.clicked.connect(self.run)
 		self.get_course_info.triggered.connect(self.get_course_info_func)
 		self.response = requests.session()
+		self.download_captcha_is_done = 0
 		self.cookie = ""
 		self.auto_email = EmailUser()
 		self.connect_to_captcha_thread = None
@@ -260,6 +263,10 @@ class MyWindow(QtGui.QMainWindow, Ui_MainWindow):
 	def print_info(self, string):
 		self.print_window.append(string)
 
+	def check_captcha_status(self, index):
+			if index == 1:
+				self.download_captcha_is_done = 1
+
 	def get_captcha_(self):
 
 		def check_connect_to_captcha(ob):
@@ -267,6 +274,7 @@ class MyWindow(QtGui.QMainWindow, Ui_MainWindow):
 				self.download_captcha_thread = DownloadCaptcha(ob)
 				self.download_captcha_thread.sin1.connect(self.print_info)
 				self.download_captcha_thread.sin2.connect(check_download_captcha)
+				self.download_captcha_thread.sin3.connect(self.check_captcha_status)
 				self.download_captcha_thread.start()
 
 		def check_download_captcha(ob):
@@ -274,7 +282,7 @@ class MyWindow(QtGui.QMainWindow, Ui_MainWindow):
 				self.cookie = ob
 				self.captcha.setPixmap(QtGui.QPixmap("0.jpg"))
 
-		url = "http://210.42.121.241/servlet/GenImg"
+		url = "http://210.42.121.241/servlet/GenImg65468496844"
 		self.connect_to_captcha_thread = CheckCaptchaConnect(self.response, url)
 		self.connect_to_captcha_thread.sin1.connect(self.print_info)
 		self.connect_to_captcha_thread.sin2.connect(check_connect_to_captcha)
@@ -309,25 +317,28 @@ class MyWindow(QtGui.QMainWindow, Ui_MainWindow):
 
 		login_url = "http://210.42.121.241/servlet/Login"
 		self.print_window.append("正在登录...")
-		captcha = self.captcha_2.text()
-		response = self.response
-		cookie = self.cookie
-		username = self.user_name.text()
-		password = self.password.text()
-		headers = {
-			"Cookie": cookie,
-		}
-		login_data = {
-			"id": username,
-			"pwd": password,
-			"xdvfb": captcha
-		}
-		post_url = "http://210.42.121.241/servlet/ProcessApply?applyType=pub&studentNum=" + username
-		post_data = self.get_course()
-		self.connect_to_login_thread = ConnectLoginServer(response, login_url, headers, login_data)
-		self.connect_to_login_thread.sin1.connect(self.print_info)
-		self.connect_to_login_thread.sin2.connect(check_login_status)
-		self.connect_to_login_thread.start()
+		if self.download_captcha_is_done == 0:
+			self.print_window.append("验证码尚未下载，请稍后...")
+		else:
+			captcha = self.captcha_2.text()
+			response = self.response
+			cookie = self.cookie
+			username = self.user_name.text()
+			password = self.password.text()
+			headers = {
+				"Cookie": cookie,
+			}
+			login_data = {
+				"id": username,
+				"pwd": password,
+				"xdvfb": captcha
+			}
+			post_url = "http://210.42.121.241/servlet/ProcessApply?applyType=pub&studentNum=" + username
+			post_data = self.get_course()
+			self.connect_to_login_thread = ConnectLoginServer(response, login_url, headers, login_data)
+			self.connect_to_login_thread.sin1.connect(self.print_info)
+			self.connect_to_login_thread.sin2.connect(check_login_status)
+			self.connect_to_login_thread.start()
 
 
 if __name__ == "__main__":
