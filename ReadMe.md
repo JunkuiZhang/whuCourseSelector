@@ -19,8 +19,8 @@ Only used for test.
 - Your student id
 - Your password to the system
 - Strings in the captcha picture(0.jpg)
-- Courses' names you want to select
-- Your email address(email you when the cookie is outdated)
+- Courses' names(course id for now) you want to select
+- (ToDo)Your email address(email you when the cookie is outdated)
 
 > Note:
 > You must re-insert the strings in the pic when it eamil you to do so
@@ -28,12 +28,13 @@ Only used for test.
 ## 3. Todo list
 
 - ~~Error controler~~
-- Make codes cleaner
+- ~~Make codes cleaner~~
 - Need the course's name rather than id
 - ~~Autotry after 404~~
 - Email the user when cookie is outdate
 - Email the user when finish selection
-- Generate .exe files
+- ~~Generate .exe files~~
+- ~~Generate GUI~~
 
 ## 4. Usage
 
