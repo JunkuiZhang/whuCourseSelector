@@ -282,7 +282,7 @@ class MyWindow(QtGui.QMainWindow, Ui_MainWindow):
 				self.cookie = ob
 				self.captcha.setPixmap(QtGui.QPixmap("0.jpg"))
 
-		url = "http://210.42.121.241/servlet/GenImg65468496844"
+		url = "http://210.42.121.241/servlet/GenImg"
 		self.connect_to_captcha_thread = CheckCaptchaConnect(self.response, url)
 		self.connect_to_captcha_thread.sin1.connect(self.print_info)
 		self.connect_to_captcha_thread.sin2.connect(check_connect_to_captcha)
