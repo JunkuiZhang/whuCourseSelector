@@ -2,3 +2,5 @@
 *.jpg
 *.txt
 __pycache__/
+test/
+*.spec
