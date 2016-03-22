@@ -230,10 +230,10 @@ class GetCourseInfo(QtCore.QThread):
 
 	def run(self):
 		try:
-			webbrowser.open("http://junkuizhang.github.io")
+			webbrowser.open("http://junkuizhang.github.io/2016/03/22/courseinfo/#more")
 		except:
 			self.sin1.emit("不能打开网页！！")
-			self.sin1.emit("请手动打开网页！")
+			self.sin1.emit("请手动打开网页！(http://junkuizhang.github.io/2016/03/22/courseinfo/#more)")
 		self.quit()
 
 

@@ -591,7 +591,7 @@
        </property>
        <property name="font">
         <font>
-         <family>黑体</family>
+         <family>等线 Light</family>
          <pointsize>11</pointsize>
         </font>
        </property>
@@ -633,7 +633,7 @@
   <widget class="QStatusBar" name="statusbar"/>
   <action name="get_course_info">
    <property name="text">
-    <string>准备课程信息</string>
+    <string>点击搜索课程ID</string>
    </property>
   </action>
   <action name="get_course_num">

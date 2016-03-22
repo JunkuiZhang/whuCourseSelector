@@ -252,7 +252,7 @@ class Ui_MainWindow(object):
         self.print_window.setMinimumSize(QtCore.QSize(0, 200))
         self.print_window.setMaximumSize(QtCore.QSize(16777215, 200))
         font = QtGui.QFont()
-        font.setFamily(_fromUtf8("黑体"))
+        font.setFamily(_fromUtf8("等线 Light"))
         font.setPointSize(11)
         self.print_window.setFont(font)
         self.print_window.setFocusPolicy(QtCore.Qt.StrongFocus)
@@ -299,6 +299,6 @@ class Ui_MainWindow(object):
         self.label_5.setText(_translate("MainWindow", "课程五", None))
         self.label_6.setText(_translate("MainWindow", "课程六", None))
         self.menuEdit.setTitle(_translate("MainWindow", "操作", None))
-        self.get_course_info.setText(_translate("MainWindow", "准备课程信息", None))
+        self.get_course_info.setText(_translate("MainWindow", "点击搜索课程ID", None))
         self.get_course_num.setText(_translate("MainWindow", "获取课程号", None))
 
