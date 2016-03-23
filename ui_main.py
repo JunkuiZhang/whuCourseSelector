@@ -89,7 +89,7 @@ class CheckCaptchaConnect(QtCore.QThread):
 			time.sleep(1)
 			try:
 				conn = self.response.get(self.url)
-				if re.findall('404.png', conn.text) != []:
+				if re.findall('404.png', conn.text):
 					self.sin1.emit("连接失败，1秒后重试")
 					continue
 				self.is_done = 1
@@ -155,17 +155,17 @@ class ConnectLoginServer(QtCore.QThread):
 			time.sleep(1)
 			try:
 				response = self.response.post(self.url, headers=self.headers, data=self.post_data)
-				if re.findall("用户名/密码错误", response.text) != []:
+				if re.findall("用户名/密码错误", response.text):
 					self.sin1.emit("=======================用户名/密码错误==========================")
 					self.is_done = 2
 					time.sleep(1)
 					continue
-				elif re.findall('验证码错误', response.text) != []:
+				elif re.findall('验证码错误', response.text):
 					self.sin1.emit("==========================验证码错误============================")
 					self.is_done = 2
 					time.sleep(1)
 					continue
-				elif re.findall("404.png", response.text) != []:
+				elif re.findall("404.png", response.text):
 					self.sin1.emit("===========================登录超时=============================")
 					time.sleep(1)
 					continue
@@ -205,7 +205,7 @@ class PostCourseThread(QtCore.QThread):
 			time.sleep(1)
 			try:
 				conn = self.response.post(self.url,headers=self.headers, data=self.post_data)
-				if re.findall('恭喜您，申请单提交成功！', conn.text) != []:
+				if re.findall('恭喜您，申请单提交成功！', conn.text):
 					self.sin1.emit("=========================提交成功！============================")
 					time.sleep(1)
 					self.sin1.emit("==============================================================")
