@@ -318,7 +318,7 @@ class MyWindow(QtGui.QMainWindow, Ui_MainWindow):
 		login_url = "http://210.42.121.241/servlet/Login"
 		self.print_window.append("正在登录...")
 		if self.download_captcha_is_done == 0:
-			self.print_window.append("验证码尚未下载，请稍后...")
+			self.print_window.append("======================验证码尚未下载，请稍后...=======================")
 		else:
 			captcha = self.captcha_2.text()
 			response = self.response
